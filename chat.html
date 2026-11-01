@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BotFarmHQ — Chat UI — DRAFT</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f6f7f9;color:#111;font-size:17px;line-height:1.55}
+  .app{display:flex;height:100vh;height:100dvh;max-width:1200px;margin:0 auto;background:#fff}
+  /* Bot list — easy to find */
+  .bots{width:320px;flex-shrink:0;border-right:1px solid #e3e5e8;display:flex;flex-direction:column}
+  .bots-head{padding:18px 18px 12px;border-bottom:1px solid #eee}
+  .brand{font-size:19px;font-weight:800;letter-spacing:-.3px} .brand span{color:#666;font-weight:600;font-size:14px}
+  .search{width:100%;padding:12px 14px;border:1px solid #d8dbdf;border-radius:99px;font-size:16px;margin-top:12px;outline:0}
+  .search:focus{border-color:#111}
+  .botlist{overflow:auto;padding:8px}
+  .bot{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:transparent;border:0;border-radius:14px;padding:11px 12px;cursor:pointer;transition:background .15s}
+  .bot:hover{background:#f6f7f9} .bot.on{background:#111;color:#fff}
+  .bot.on .sub{color:#bbb}
+  .avatar{width:44px;height:44px;flex-shrink:0;border-radius:50%;background:#eee;color:#111;display:grid;place-items:center;font-weight:800;font-size:17px}
+  .bot.on .avatar{background:#333;color:#fff}
+  .bot .name{font-weight:700;font-size:16px} .bot .sub{font-size:13.5px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bot .meta{margin-left:auto;font-size:12px;color:#888;white-space:nowrap}
+  /* Chat — clean, smooth */
+  .chat{flex:1;display:flex;flex-direction:column;min-width:0}
+  .chat-head{padding:16px 22px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:12px}
+  .chat-head b{font-size:18px} .chat-head span{display:block;font-size:13.5px;color:#666}
+  .messages{flex:1;overflow:auto;padding:24px;max-width:720px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:78%;padding:13px 16px;border-radius:20px;font-size:16.5px;line-height:1.55;animation:fade .18s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .msg.bot{background:#f0f1f3;border-bottom-left-radius:6px;align-self:flex-start}
+  .live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#111;margin-right:6px;animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .signcard{max-width:78%;align-self:flex-start;background:#fff;border:2px solid #111;border-radius:18px;padding:14px 16px;font-size:15.5px}
+  .signcard button{background:#111;color:#fff;border:0;padding:10px 16px;border-radius:99px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;margin-right:8px}
+  .signcard button.secondary{background:#fff;color:#111;border:1px solid #d8dbdf}
+  .msg.you{background:#111;color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;max-width:720px;width:100%;margin:0 auto;padding:0 24px 12px}
+  .chips button{background:#fff;border:1px solid #d8dbdf;padding:10px 15px;border-radius:99px;font-size:15px;cursor:pointer}
+  .composer{border-top:1px solid #eee;padding:14px 22px}
+  .composer-in{max-width:720px;margin:0 auto;display:flex;gap:10px}
+  .composer input{flex:1;padding:14px 18px;border:1px solid #d8dbdf;border-radius:99px;font-size:16px;outline:0}
+  .composer input:focus{border-color:#111}
+  .send{background:#111;color:#fff;border:0;padding:13px 20px;border-radius:99px;font-size:16px;font-weight:700;cursor:pointer}
+  .note{font-size:12.5px;color:#888;text-align:center;padding:6px 0 0}
+  .vmbtn{background:#fff;border:1px solid #d8dbdf;padding:9px 14px;border-radius:99px;font-size:14px;font-weight:700;cursor:pointer;margin-left:auto;white-space:nowrap}
+  .vmpanel{display:none;border-bottom:1px solid #eee;background:#f6f7f9;padding:16px 22px}
+  .vmpanel.open{display:block}
+  .vmpanel .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:720px;margin:0 auto}
+  .vmpanel .stat{background:#fff;border:1px solid #e3e5e8;border-radius:12px;padding:12px}
+  .vmpanel .stat b{display:block;font-size:15px} .vmpanel .stat span{font-size:13.5px;color:#666}
+  .connectors{border-top:1px solid #eee;padding:14px 16px}
+  .connectors h3{font-size:14px;margin:0 0 10px} .conn{display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:15px}
+  .conn button{background:#111;color:#fff;border:0;padding:8px 14px;border-radius:99px;font-size:14px;font-weight:700;cursor:pointer;min-height:38px}
+  .conn button.done{background:#fff;color:#111;border:1px solid #d8dbdf}
+  @media(max-width:760px){
+    .app{flex-direction:column}
+    .bots{width:100%;border-right:0;border-bottom:1px solid #eee}
+    .bots-head{padding:12px 14px 8px} .botlist{display:flex;overflow:auto;padding:6px 8px}
+    .bot{flex-direction:column;text-align:center;min-width:86px;padding:10px 6px} .bot .sub,.bot .meta{display:none}
+    .avatar{width:42px;height:42px}
+    .messages{padding:16px} .msg{max-width:88%}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="bots">
+    <div class="bots-head">
+      <div class="brand">BotFarm<span>HQ</span></div>
+      <div style="font-size:13.5px;color:#666;margin-top:2px">Offered by Main Street Media HQ · Powered by botfarmhq.com</div>
+      <input class="search" id="search" placeholder="Find a bot…" oninput="filterBots(this.value)">
+    </div>
+    <div class="botlist" id="botlist"></div>
+    <div class="connectors">
+      <h3>Connectors — easy to connect</h3>
+      <div class="conn"><span>Google Business</span><button onclick="connectBtn(this)">Connect</button></div>
+      <div class="conn"><span>Facebook</span><button onclick="connectBtn(this)">Connect</button></div>
+      <div class="conn"><span>Instagram</span><button onclick="connectBtn(this)">Connect</button></div>
+      <div class="conn"><span>TikTok</span><button onclick="connectBtn(this)">Connect</button></div>
+      <div class="conn"><span>GoHighLevel</span><button onclick="connectBtn(this)">Connect</button></div>
+      <div class="conn"><span>Retell phone</span><button onclick="connectBtn(this)">Connect</button></div>
+      <p style="font-size:12.5px;color:#888;margin:8px 0 0">Sample only. Real connect opens that service's own sign-in. You sign in yourself. No passwords here.</p>
+    </div>
+  </aside>
+
+  <main class="chat">
+    <div class="chat-head">
+      <div class="avatar" id="headAvatar">F</div>
+      <div><b id="headName">Front Desk</b><span id="headSub"><span class="live-dot"></span>Live · Streaming replies</span></div>
+      <button class="vmbtn" onclick="toggleVM()">View from VM</button>
+    </div>
+    <div class="vmpanel" id="vmpanel">
+      <div style="max-width:720px;margin:0 auto">
+        <b id="vmTitle">Front Desk — view from its VM</b>
+        <p style="font-size:14px;color:#666;margin:6px 0 14px">What this bot sees right now, on its VM. Sample data only, not a live VM feed yet.</p>
+        <div class="grid">
+          <div class="stat"><b>● Running</b><span>VM: 8GB · $8/mo</span></div>
+          <div class="stat"><b id="vmMsgs">1,940</b><span>Messages this week</span></div>
+          <div class="stat"><b id="vmTokens">—</b><span>Tokens used today (sample)</span></div>
+        </div>
+        <p style="font-size:14.5px;margin:14px 0 0"><b>Bot's view:</b> <span id="vmView">New message: “My sink is leaking.” → Bot is answering now.</span></p>
+        <p style="font-size:13.5px;color:#666;margin:8px 0 0"><b>Live feed:</b> <span id="vmLive">Bot is online, waiting for the next message.</span></p>
+      </div>
+    </div>
+    <div class="messages" id="messages"></div>
+    <div class="chips" id="chips"></div>
+    <form class="composer" onsubmit="sendMsg(event)">
+      <div class="composer-in">
+        <input id="input" placeholder="Type your message…" autocomplete="off">
+        <button class="send" type="submit">Send</button>
+      </div>
+      <div class="note">DRAFT UI ONLY — sample chats, not live bots yet.</div>
+    </form>
+  </main>
+</div>
+<script>
+const BOTS=[
+ {id:'coo',name:'COO Bot',init:'C',last:'I run your farm. Just tell me what to do.',msgs:'—',tokens:'—',view:'Farm control: waiting for your next instruction.',chips:['Add a bot','Check usage','Buy tokens','View VM'],chat:[['bot','I am your COO bot. I run this farm. Just tell me what you want, in plain words.'],['you','Check usage.'],['bot','This week: 6,820 / 10,000 messages. 68% used. 3,180 left. Bots: 12 / 50.']]},
+ {id:'front',name:'Front Desk',init:'F',last:'I can book a visit today.',msgs:'1,940',tokens:'12,400',view:'New message: “My sink is leaking.” → Bot is answering now.',chips:['Book a visit','Get a quote','Call now'],chat:[['bot','Hi, how can I help today?'],['you','My sink is leaking.'],['bot','Is it a steady drip, or water on the floor?']]},
+ {id:'quotes',name:'Quotes',init:'Q',last:'Your quote is ready to review.',msgs:'1,310',tokens:'8,900',view:'New request: “New bathroom faucet.” → Bot is pricing it now.',chips:['New quote','Check my quote'],chat:[['bot','Tell me what you need, and I will price it.'],['you','New bathroom faucet.'],['bot','Got it. Faucet + install, I will send a quote in a few minutes.']]},
+ {id:'hours',name:'After Hours',init:'A',last:'Left a message for the morning.',msgs:'980',tokens:'5,200',view:'New message: “Please call me in the morning.” → Bot saved it for tomorrow.',chips:['Leave a message','Emergency?'],chat:[['bot','The office is closed, but I can take a message.'],['you','Please call me in the morning.'],['bot','Done. First call tomorrow morning.']]},
+ {id:'reviews',name:'Reviews',init:'R',last:'Thanks for the 5 stars!',msgs:'640',tokens:'3,100',view:'New review: “Great, fast and clean.” → Bot is thanking them now.',chips:['Leave a review','See reviews'],chat:[['bot','How was your visit today?'],['you','Great, fast and clean.'],['bot','Thank you. Want to leave that as a review?']]},
+];
+let current=BOTS[0];
+function renderList(filter=''){
+  const el=document.getElementById('botlist'); el.innerHTML='';
+  BOTS.filter(b=>b.name.toLowerCase().includes(filter.toLowerCase())).forEach(b=>{
+    const btn=document.createElement('button'); btn.className='bot'+(b===current?' on':''); btn.onclick=()=>{current=b;renderAll()};
+    btn.innerHTML=`<div class="avatar">${b.init}</div><div style="min-width:0"><div class="name">${b.name}</div><div class="sub">${b.last}</div></div>`;
+    el.appendChild(btn);
+  });
+}
+function toggleVM(){document.getElementById('vmpanel').classList.toggle('open')}
+function renderChat(){
+  document.getElementById('headName').textContent=current.name;
+  document.getElementById('headAvatar').textContent=current.init;
+  document.getElementById('vmTitle').textContent=current.name+' — view from its VM';
+  document.getElementById('vmMsgs').textContent=current.msgs;
+  document.getElementById('vmTokens').textContent=current.tokens;
+  document.getElementById('vmView').textContent=current.view;
+  const m=document.getElementById('messages'); m.innerHTML='';
+  current.chat.forEach(([who,text])=>{const d=document.createElement('div'); d.className='msg '+who; d.textContent=text; m.appendChild(d)});
+  const c=document.getElementById('chips'); c.innerHTML='';
+  current.chips.forEach(ch=>{const b=document.createElement('button'); b.textContent=ch; b.onclick=()=>{addMsg('you',ch); setTimeout(()=>streamBot('Got it. I will take care of that next.'),400)}; c.appendChild(b)});
+  const signBtn=document.createElement('button'); signBtn.textContent='Check my reviews'; signBtn.onclick=()=>{addMsg('you','Check my reviews'); setTimeout(addSignCard,400)}; c.appendChild(signBtn);
+  m.scrollTop=m.scrollHeight;
+}
+function renderAll(){renderList(document.getElementById('search').value); renderChat()}
+function filterBots(v){renderList(v)}
+function addMsg(who,text){current.chat.push([who,text]); renderChat()}
+function streamBot(text){
+  // Live feed, like Grok / Muse: words appear as they arrive, not all at once.
+  const m=document.getElementById('messages');
+  const d=document.createElement('div'); d.className='msg bot'; d.textContent=''; m.appendChild(d);
+  const words=text.split(' '); let i=0;
+  const iv=setInterval(()=>{ if(i>=words.length){clearInterval(iv); current.chat.push(['bot',text]); return} d.textContent+=(i?' ':'')+words[i]; i++; m.scrollTop=m.scrollHeight; },60);
+}
+function addSignCard(){
+  const m=document.getElementById('messages');
+  const d=document.createElement('div'); d.className='signcard';
+  d.innerHTML='<b>Sign-in needed</b><br>To check reviews, sign in to Google Business.<br><span style="color:#666">I will not ask for your password here. Sign in on Google\u2019s own page.</span><br><button onclick="signedIn(this)">Sign in to Google</button><button class="secondary" onclick="notNow(this)">Not now</button>';
+  m.appendChild(d); m.scrollTop=m.scrollHeight;
+}
+function signedIn(btn){btn.textContent='✓ Signed in (sample)'; btn.disabled=true; setTimeout(()=>streamBot('You have 138 reviews, 4.8 stars. Latest review: “Fast, clean, and on time.” Want me to reply to it?'),400)}
+function notNow(btn){btn.closest('.signcard').remove(); setTimeout(()=>streamBot('No problem. I can still help with booking and quotes, no sign-in needed.'),300)}
+function sendMsg(e){e.preventDefault(); const i=document.getElementById('input'); const t=i.value.trim(); if(!t) return; addMsg('you',t); i.value=''; setTimeout(()=>streamBot('Thanks. I have that. Want me to book it, or send a quote?'),400)}
+function connectBtn(b){b.textContent='Connecting…'; setTimeout(()=>{b.textContent='✓ Connected'; b.className='done'},600)}
+renderAll();
+const LIVE_ACT=['Bot is online, waiting for the next message.','Bot just finished a reply.','Bot is checking its queue.','No new messages in the last minute.'];
+let liveIdx=0; setInterval(()=>{ const p=document.getElementById('vmpanel'); if(p && p.classList.contains('open')){ liveIdx=(liveIdx+1)%LIVE_ACT.length; document.getElementById('vmLive').textContent=LIVE_ACT[liveIdx]+' · '+new Date().toLocaleTimeString(); } },6000);
+</script>
+</body>
+</html>
