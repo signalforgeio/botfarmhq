@@ -1,0 +1,445 @@
+{
+  "bots": [
+    {
+      "faqs": [
+        {
+          "answer": "I can add a bot to your farm. Tell me the bot's job \u2014 for example Front Desk, Quotes, After Hours, or Reviews \u2014 and I will add it to the list, up to the 50-bot farm cap.",
+          "card": {
+            "body": "Tell me the bot's job in plain words. Farm cap: 50 bots.",
+            "title": "Add a bot",
+            "type": "action"
+          },
+          "keywords": [
+            "add a bot",
+            "new bot",
+            "create a bot"
+          ],
+          "question": "Add a bot"
+        },
+        {
+          "answer": "I can check usage for you. Use the /api/usage endpoint or ask me again here and I will report messages this week, tokens used, and how much weekly allowance is left.",
+          "card": {
+            "body": "See GET /api/usage for the live farm total.",
+            "title": "Weekly usage",
+            "type": "usage"
+          },
+          "keywords": [
+            "check usage",
+            "usage",
+            "how many messages",
+            "messages left"
+          ],
+          "question": "Check usage"
+        },
+        {
+          "answer": "Tokens start from $50+ and give 15 times your usage. For example, 1,000 messages a week becomes 15,000 a week. Token billing is not wired yet \u2014 this is a preview, and a real Stripe payment step is still a stub.",
+          "card": {
+            "body": "15x usage. Example: 1,000 a week becomes 15,000 a week.",
+            "title": "Buy tokens \u2014 from $50+",
+            "type": "upsell"
+          },
+          "keywords": [
+            "buy tokens",
+            "tokens",
+            "top up",
+            "more messages"
+          ],
+          "question": "Buy tokens"
+        },
+        {
+          "answer": "The farm runs on an 8GB VM. Use GET /api/vm/status for the live status, messages this week, tokens, and per-bot usage from the local store.",
+          "card": {
+            "body": "8GB VM. See GET /api/vm/status for the live status.",
+            "title": "View from VM",
+            "type": "status"
+          },
+          "keywords": [
+            "view vm",
+            "vm",
+            "view from vm",
+            "server",
+            "status"
+          ],
+          "question": "View VM"
+        },
+        {
+          "answer": "I am the COO bot. I run this farm in plain words. You can ask me to add a bot, check usage, buy tokens, or view the VM. I am an automated assistant, not a human. For anything I cannot do, I will hand you to a human.",
+          "card": {
+            "body": "Farm control in plain words. I am an automated assistant, not a human.",
+            "title": "COO Bot",
+            "type": "info"
+          },
+          "keywords": [
+            "what can you do",
+            "help",
+            "what is the coo bot"
+          ],
+          "question": "What is the COO bot?"
+        }
+      ],
+      "id": "coo",
+      "name": "COO Bot",
+      "role": "Farm control. Talk to it in plain words instead of using a complex dashboard."
+    },
+    {
+      "faqs": [
+        {
+          "answer": "Hours are set per business in its own knowledge base. This starter does not invent hours \u2014 the business owner fills them in before the bot goes live, and the bot repeats only what is on file.",
+          "card": {
+            "body": "Set by the business owner. The bot never invents hours.",
+            "title": "Hours",
+            "type": "info"
+          },
+          "keywords": [
+            "hours",
+            "open",
+            "when are you open"
+          ],
+          "question": "What are your hours?"
+        },
+        {
+          "answer": "I can take a booking request: your name, phone, and the job you need. That creates a booking REQUEST, not a real calendar booking yet. A real calendar write is still a stub. A human confirms the time.",
+          "card": {
+            "body": "Name, phone, and job needed. A human confirms the time.",
+            "title": "Booking request",
+            "type": "booking"
+          },
+          "keywords": [
+            "book",
+            "appointment",
+            "visit",
+            "schedule"
+          ],
+          "question": "Book a visit"
+        },
+        {
+          "answer": "If this is an emergency, call the business directly and do not wait for chat. This bot can take your name and phone for an urgent callback, but it is not an emergency service.",
+          "card": {
+            "body": "Call directly. This bot is not an emergency service.",
+            "title": "Emergency",
+            "type": "action"
+          },
+          "keywords": [
+            "emergency",
+            "leak",
+            "flooding",
+            "urgent"
+          ],
+          "question": "Emergency"
+        },
+        {
+          "answer": "Of course. Leave your name and phone and I will pass it to a human. I am an automated assistant, not a human.",
+          "card": {
+            "body": "Leave your name and phone. A human will follow up.",
+            "title": "Talk to a human",
+            "type": "action"
+          },
+          "keywords": [
+            "human",
+            "person",
+            "talk to someone",
+            "agent"
+          ],
+          "question": "Talk to a human"
+        }
+      ],
+      "id": "front",
+      "name": "Front Desk",
+      "role": "Answers the phone-style questions, books a visit request, and hands off to a human when stuck."
+    },
+    {
+      "faqs": [
+        {
+          "answer": "I can take a quote request: your name, phone, and what you need done. The business replies with a real quote. I never invent a price, and a quote in chat is not a contract.",
+          "card": {
+            "body": "Name, phone, and job needed. The business replies with a real quote.",
+            "title": "Quote request",
+            "type": "quote"
+          },
+          "keywords": [
+            "quote",
+            "price",
+            "cost",
+            "estimate"
+          ],
+          "question": "Get a quote"
+        },
+        {
+          "answer": "Quote response time is set by the business. This starter does not promise a same-day reply. A human replies, and the bot only takes the request.",
+          "card": {
+            "body": "Set by the business. The bot takes the request, a human replies.",
+            "title": "Quote timing",
+            "type": "info"
+          },
+          "keywords": [
+            "how long",
+            "when will",
+            "response time"
+          ],
+          "question": "How fast is a quote?"
+        },
+        {
+          "answer": "You can describe the job here. Photo upload is not wired in this starter. Describe the job in words, and the business may ask for a photo by phone or email.",
+          "card": {
+            "body": "Photo upload is not wired yet. Describe the job in words.",
+            "title": "Photos",
+            "type": "info"
+          },
+          "keywords": [
+            "photo",
+            "picture",
+            "send a photo"
+          ],
+          "question": "Send a photo with a quote"
+        }
+      ],
+      "id": "quotes",
+      "name": "Quotes",
+      "role": "Takes quote requests and hands them to the business. It never invents a price."
+    },
+    {
+      "faqs": [
+        {
+          "answer": "This is the after-hours bot. The office may be closed right now. Leave your name, phone, and message and the team will call back next business day.",
+          "card": {
+            "body": "Leave a message. The team calls back next business day.",
+            "title": "After hours",
+            "type": "info"
+          },
+          "keywords": [
+            "after hours",
+            "closed",
+            "night",
+            "weekend"
+          ],
+          "question": "Are you open now?"
+        },
+        {
+          "answer": "I can take a message: your name, phone, and what you need. That creates a lead record for the morning team. It is not a confirmed booking.",
+          "card": {
+            "body": "Name, phone, and message for the morning team.",
+            "title": "Leave a message",
+            "type": "lead"
+          },
+          "keywords": [
+            "callback",
+            "call me back",
+            "message"
+          ],
+          "question": "Leave a message"
+        },
+        {
+          "answer": "If this is urgent, call the business directly. This after-hours bot only takes messages, and it cannot dispatch help on its own.",
+          "card": {
+            "body": "Call directly. This bot only takes messages after hours.",
+            "title": "Urgent",
+            "type": "action"
+          },
+          "keywords": [
+            "emergency",
+            "urgent"
+          ],
+          "question": "Urgent after hours"
+        }
+      ],
+      "id": "after-hours",
+      "name": "After Hours",
+      "role": "Answers after hours, takes a message, and queues a morning callback. It does not pretend to be staffed at night."
+    },
+    {
+      "faqs": [
+        {
+          "answer": "Thank you. A real review link is set by the business owner. This starter does not invent reviews, ratings, or testimonials, and it never posts a review for you without your own sign-in.",
+          "card": {
+            "body": "Use the business's own review link. Reviews are never invented here.",
+            "title": "Leave a review",
+            "type": "info"
+          },
+          "keywords": [
+            "review",
+            "leave a review",
+            "rating"
+          ],
+          "question": "Leave a review"
+        },
+        {
+          "answer": "To check reviews, sign in on the service's own page \u2014 for example Google Business. I will never ask for your password in this chat, and I never store it here.",
+          "card": {
+            "body": "Sign in on the service's own page. No password in chat.",
+            "title": "Sign-in needed",
+            "type": "action"
+          },
+          "keywords": [
+            "sign in",
+            "google",
+            "google business"
+          ],
+          "question": "Sign in to check reviews"
+        },
+        {
+          "answer": "A business can draft a reply here, but posting a reply needs that service's own sign-in. Drafts are not posted automatically, and no review text is invented.",
+          "card": {
+            "body": "Draft only here. Posting needs the service's own sign-in.",
+            "title": "Reply to a review",
+            "type": "info"
+          },
+          "keywords": [
+            "reply",
+            "respond to a review"
+          ],
+          "question": "Reply to a review"
+        }
+      ],
+      "id": "reviews",
+      "name": "Reviews",
+      "role": "Helps customers leave a review and helps the business reply. It never invents a review."
+    },
+    {
+      "id": "marketing",
+      "name": "Marketing Bot",
+      "role": "Lead generation, follow-up, and campaign help. No bought views, no spam.",
+      "faqs": [
+        {
+          "question": "What do you do?",
+          "answer": "I help bring in leads and follow up with them. I can draft a follow-up message, a review request, and a simple offer, for you to approve before it goes out.",
+          "keywords": [
+            "marketing",
+            "leads",
+            "follow up"
+          ],
+          "card": {
+            "title": "Marketing help",
+            "body": "Drafts only. You approve before anything goes out.",
+            "type": "info"
+          }
+        },
+        {
+          "question": "Can you post for me?",
+          "answer": "I can draft posts and messages. I do not post, send, or buy views on your behalf without your approval.",
+          "keywords": [
+            "post",
+            "social"
+          ],
+          "card": {
+            "title": "Drafts, not auto-posts",
+            "body": "You approve every post first.",
+            "type": "info"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ops",
+      "name": "Ops Bot",
+      "role": "Jobs, dispatch, and status updates.",
+      "faqs": [
+        {
+          "question": "What do you do?",
+          "answer": "I track jobs, crew status, and next steps. I can give a customer a job status update, and tell you what job is next.",
+          "keywords": [
+            "ops",
+            "jobs",
+            "dispatch"
+          ],
+          "card": {
+            "title": "Ops and dispatch",
+            "body": "Status updates, not a dispatch system yet.",
+            "type": "info"
+          }
+        },
+        {
+          "question": "Can you reschedule a job?",
+          "answer": "I can take a reschedule request and record it. A human confirms the new time before it is final.",
+          "keywords": [
+            "reschedule",
+            "job"
+          ],
+          "card": {
+            "title": "Reschedule request",
+            "body": "Human confirms the new time.",
+            "type": "info"
+          }
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "Finance Bot",
+      "role": "Invoicing help, payment reminders, and quote follow-up. No card handling, no financial advice.",
+      "faqs": [
+        {
+          "question": "What do you do?",
+          "answer": "I help with invoicing and payment follow-up. I can draft an invoice reminder and a quote follow-up, for you to approve.",
+          "keywords": [
+            "finance",
+            "invoice",
+            "payment"
+          ],
+          "card": {
+            "title": "Finance help",
+            "body": "Drafts only. No card numbers in chat.",
+            "type": "info"
+          }
+        },
+        {
+          "question": "Can you take a payment?",
+          "answer": "No. I do not take card numbers in chat. Payments go through Stripe, on a secure payment page.",
+          "keywords": [
+            "payment",
+            "card"
+          ],
+          "card": {
+            "title": "No card in chat",
+            "body": "Stripe only, secure page.",
+            "type": "info"
+          }
+        }
+      ]
+    },
+    {
+      "id": "booking",
+      "name": "Booking Bot",
+      "role": "Scheduling, rescheduling, and confirmations.",
+      "faqs": [
+        {
+          "question": "What do you do?",
+          "answer": "I take booking requests, confirmations, and reschedule requests. A human confirms the time before it is final, until a real calendar write is wired.",
+          "keywords": [
+            "booking",
+            "schedule"
+          ],
+          "card": {
+            "title": "Booking help",
+            "body": "Request first, human confirms.",
+            "type": "info"
+          }
+        }
+      ]
+    }
+  ],
+  "farm": {
+    "cap_bots": 50,
+    "name": "BotFarmHQ",
+    "note": "Office bots only. FAQ, booking request, quote request, lead capture, and simple HTML card output. No code generation. No Grok build-like work. Path A non-PHI only \u2014 no patient health details in chat or forms, no HIPAA claim.",
+    "plans": {
+      "Basic": {
+        "bots": 8,
+        "price": "$349/mo"
+      },
+      "Enterprise": {
+        "bots": 50,
+        "price": "$1,999/mo"
+      },
+      "Plus": {
+        "bots": 25,
+        "price": "$799/mo"
+      }
+    },
+    "token_upsell_from": "$50+",
+    "weekly_limits": {
+      "Basic": 2500,
+      "Enterprise": 25000,
+      "Plus": 10000
+    }
+  }
+}

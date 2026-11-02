@@ -7,4 +7,54 @@
 <tr><td>Brian McDonough — Admin / Owner</td><td>—</td><td>—</td><td>Active</td></tr>
 <tr><td>Test Dummy Client — Smith Plumbing (DEMO)</td><td>Plus — $799/mo</td><td>12 / 25</td><td>Active — test only</td></tr></table>
 <p>Control: talk through the <b>COO bot</b>. <a href="chat.html">Open chat / COO bot</a></p>
+
+<h2 id="usage">Weekly usage</h2>
+<p id="usage-status">Loading usage…</p>
+<p id="usage-week">This week: no live data yet.</p>
+<p id="usage-today">Today: no live data yet.</p>
+<p id="usage-cap">Daily cap: $10 for all bots combined.</p>
+<progress id="usage-bar" value="0" max="100" aria-label="Daily $10 cap progress"></progress>
+<p id="usage-top">Top bot: no live data yet.</p>
+<h3>Per-bot usage</h3>
+<ul id="usage-perbot"><li>No live data yet.</li></ul>
+<p><strong>No live usage yet — backend not deployed.</strong> This page is static on GitHub Pages. Live numbers appear only when the BotFarmHQ backend is running on the VM and this page can reach its /api/usage endpoint. No usage numbers here are invented. Tokens are a rough estimate, about 4 characters per token, not a bill. FAQ replies use $0 in API spend, because they are answered from fixed templates on the VM, before any AI model is called.</p>
+<p>Backend URL used by this page: <code id="usage-api">http://127.0.0.1:8000</code> (change it by setting <code>window.BOTFARMHQ_API_BASE</code> before this script runs, once the backend is deployed).</p>
+<script>
+(function(){
+  var API_BASE = (window.BOTFARMHQ_API_BASE || "http://127.0.0.1:8000").replace(/\/$/, "");
+  document.getElementById("usage-api").textContent = API_BASE;
+  function setNoLive(reason){
+    document.getElementById("usage-status").textContent = "No live usage yet — backend not deployed. " + (reason || "");
+    document.getElementById("usage-week").textContent = "This week: no live data yet.";
+    document.getElementById("usage-today").textContent = "Today: no live data yet.";
+    document.getElementById("usage-cap").textContent = "Daily cap: $10 for all bots combined.";
+    document.getElementById("usage-bar").value = 0;
+    document.getElementById("usage-top").textContent = "Top bot: no live data yet.";
+    document.getElementById("usage-perbot").innerHTML = "<li>No live data yet.</li>";
+  }
+  function fmt(n){ return Number(n || 0).toLocaleString("en-US"); }
+  function money(n){ return "$" + Number(n || 0).toFixed(2); }
+  var ctrl = new AbortController();
+  setTimeout(function(){ try{ ctrl.abort(); }catch(e){} }, 3000);
+  fetch(API_BASE + "/api/usage", {signal: ctrl.signal}).then(function(r){
+    if(!r.ok) throw new Error("Backend returned " + r.status);
+    return r.json();
+  }).then(function(d){
+    var cap = Number(d.daily_cap_usd || 10);
+    var spent = Number(d.daily_spent_usd || 0);
+    var pct = cap > 0 ? Math.min(100, Math.round(spent / cap * 100)) : 0;
+    document.getElementById("usage-status").textContent = d.cap_reached ? "Daily $10 cap reached, resumes tomorrow." : "Live usage from the backend.";
+    document.getElementById("usage-week").textContent = "This week: " + fmt(d.messages_this_week) + " messages, " + fmt(d.tokens) + " tokens (estimate). Week starts " + (d.week_start || "Monday") + ".";
+    document.getElementById("usage-today").textContent = "Today: " + fmt((d.today && d.today.messages) || 0) + " messages, " + fmt((d.today && d.today.tokens) || 0) + " tokens (estimate). API spend today: " + money(spent) + ".";
+    document.getElementById("usage-cap").textContent = "Daily cap: " + money(spent) + " of $" + cap.toFixed(0) + " for all bots combined (" + pct + "% used). " + (d.cap_reached ? "Daily $10 cap reached, resumes tomorrow." : "Cap not reached.");
+    document.getElementById("usage-bar").value = pct;
+    var top = d.top_bot;
+    document.getElementById("usage-top").textContent = top ? ("Top bot (using the most): " + top.name + " — " + fmt(top.messages) + " messages, " + fmt(top.tokens) + " tokens, " + money(top.estimated_cost_usd) + " estimated cost.") : "Top bot: no bot has used anything yet.";
+    var per = d.per_bot || {};
+    var names = d.bot_names || {};
+    var rows = Object.keys(per).map(function(id){ return {id: id, name: names[id] || id, messages: per[id].messages_this_week || 0, tokens: per[id].tokens || 0, cost: per[id].estimated_cost_usd || 0}; }).sort(function(a,b){ return b.cost - a.cost; });
+    document.getElementById("usage-perbot").innerHTML = rows.length ? rows.map(function(r){ return "<li>" + r.name + ": " + fmt(r.messages) + " messages, " + fmt(r.tokens) + " tokens, " + money(r.cost) + " estimated cost.</li>"; }).join("") : "<li>No bot has used anything yet.</li>";
+  }).catch(function(){ setNoLive("The backend could not be reached from this page."); });
+})();
+</script>
 <p><a href="index.html">Back to landing page</a></p></div></body></html>
