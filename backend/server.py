@@ -39,14 +39,18 @@ adapted — not copied — because this backend has no model call yet):
     is dormant until a real model call is wired; it is not a fake block.
     When the cap is reached, chat answers with exactly:
     "Daily $10 cap reached, resumes tomorrow." — never a generic failure.
-  - Compute-first: FAQ, greeting, help, and status answers are answered
-    from fixed templates on the VM, with no AI model call at all.
-    Simple tasks stay local. Code / build requests are OUT OF SCOPE for
-    these office bots: they are refused with a human handoff, never sent
-    to an advanced model. There is no Builder bot in this farm, so no bot
-    here may silently upgrade to an advanced model. If a real model is
-    added later, simple tasks must use the cheapest model, and advanced
-    work must be Builder-only, with this cap check first.
+  - Compute-first, right model for the job, COGS low but quality high:
+    VM-local compute, templates, and cache FIRST, before any AI API call.
+    FAQ, greeting, help, and status answers are answered from fixed
+    templates on the VM, with no AI model call at all ($0 API spend).
+    Simple tasks use a cheap/small model only, never the advanced model.
+    Builder-level work uses the ADVANCED model, and quality there must
+    NOT be cut to save a few cents — do NOT route everything to cheapest.
+    There is no Builder bot in this BotFarmHQ farm, so office bots do
+    NOT run builder work themselves and do NOT downgrade it to cheap:
+    they hand it to a Builder / human, who runs it on the advanced model.
+    If a real model is added later, this routing stands, with the cap
+    check first: simple -> cheap, builder -> advanced, Builder-only.
   - Token counts are a rough estimate (about 4 characters per token),
     not a bill. Estimated cost uses the cheapest listed output rate
     ($2 per 1M tokens) and is labelled an estimate everywhere it appears.
@@ -126,19 +130,25 @@ _SIMPLE_RE = re.compile(r"\b(hi|hello|hey|help|hours|price|quote|book|booking|ap
 _BUILD_RE = re.compile(r"\b(build|code|coding|refactor|deploy|implement|program|programming)\b|\b(write|create|make)\b.*\b(app|script|file|feature|website|program|code)\b|\bfix (the )?bug\b|\bpull request\b|```|\bfunction |\bclass |\bimport |\bexport ", re.I)
 
 def route_task(message, bot_id=""):
-    """Compute-first routing for BotFarmHQ office bots.
+    """Compute-first, right-model routing for BotFarmHQ office bots.
 
+    Core principle: VM-local compute, templates, and cache FIRST, before
+    any AI API call. COGS low, quality high — not cheap at any cost.
     Returns a dict, never a model call by itself:
-    - local: answer from fixed FAQ templates, $0 API spend.
-    - refused: code/build work is out of scope here, human handoff only.
-    There is no Builder bot in this farm, so 'advanced' is never returned.
+    - local: simple task, answered from fixed FAQ templates, $0 API spend,
+      or cheap/small model only if a model is ever needed.
+    - builder: builder-level work. It needs the ADVANCED model and quality
+      must NOT be cut to save a few cents, so it is NOT routed to cheap
+      and NOT run by an office bot. It hands off to a Builder / human,
+      who runs it on the advanced model. This farm has no Builder bot,
+      so no office bot may silently run or downgrade builder work.
     """
     msg = str(message or "")
     if _BUILD_RE.search(msg):
-        return {"mode": "refused", "model": "none — human handoff",
-                "reason": "Code/build work is out of scope for BotFarmHQ office bots."}
-    return {"mode": "local", "model": "none — FAQ template on the VM",
-            "reason": "Simple task answered locally, before any AI model call."}
+        return {"mode": "builder", "model": "advanced — Builder only, quality not cut",
+                "reason": "Builder-level work needs the advanced model. Do not downgrade it to cheap."}
+    return {"mode": "local", "model": "none — FAQ template on the VM, or cheap/small model only",
+            "reason": "Simple task answered locally first, before any AI model call."}
 
 def _usage_defaults():
     return {"messages_this_week": 0, "tokens": 0, "per_bot": {},
@@ -362,9 +372,11 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(f"data: {json.dumps({'card': {'body': 'Resumes tomorrow. Ask a human if you need it today.', 'title': 'Daily cap reached', 'type': 'info'}, 'done': True, 'cap_reached': True})}\n\n".encode("utf-8"))
             return
         routed = route_task(message, bot_id)
-        if routed["mode"] == "refused":
-            faq = {"answer": "I cannot build code or apps here. These are office bots for answers, quotes, bookings, and leads. Leave your name and phone and a human will follow up about the build work.",
-                   "card": {"body": "Office bots only. A human follows up on build work.", "title": "Human handoff", "type": "action"}}
+        if routed["mode"] == "builder":
+            # Quality rule: builder work gets the advanced model, never cheap.
+            # Office bots do not run it themselves; they hand it to a Builder.
+            faq = {"answer": "This is builder-level work, so it needs the advanced model — I will not cut quality to save a few cents by running it on the cheap model. These office bots do not run builder work themselves. Leave your name and phone and a Builder will follow up on the advanced model.",
+                   "card": {"body": "Builder-level work: advanced model only, quality not cut. A Builder follows up.", "title": "Builder handoff", "type": "action"}}
         else:
             faq = answer_for(bot_id, message)
         usage = bump_usage(bot_id if bot_id in BOTS else "coo", faq["answer"])

@@ -159,11 +159,15 @@ this backend has no model call yet:
   The cap gates real API spend. FAQ replies use $0 API spend, so the cap
   is dormant until a real model call is wired. When reached, chat answers
   "Daily $10 cap reached, resumes tomorrow." — never a generic failure.
-- Compute-first: FAQ, greeting, help, and status answers come from fixed
-  templates on the VM, with no AI model call. Simple tasks stay local.
-  Code / build requests are out of scope for these office bots: they get
-  a human handoff, never an advanced model. There is no Builder bot in
-  this farm, so no bot here may silently upgrade to an advanced model.
+- Compute-first, right model for the job, COGS low but quality high:
+  VM-local compute, templates, and cache FIRST, before any AI API call.
+  FAQ, greeting, help, and status answers come from fixed templates on
+  the VM, with no AI model call ($0 API spend). Simple tasks use a
+  cheap/small model only. Builder-level work uses the ADVANCED model,
+  and quality there must NOT be cut to save a few cents — do NOT route
+  everything to cheapest. There is no Builder bot in this farm, so office
+  bots do NOT run builder work themselves and do NOT downgrade it to
+  cheap: they hand it to a Builder / human on the advanced model.
 - Tokens are a rough estimate (about 4 characters per token), not a bill.
   Estimated cost uses the cheapest listed output rate ($2 per 1M tokens)
   and is labelled an estimate everywhere.
